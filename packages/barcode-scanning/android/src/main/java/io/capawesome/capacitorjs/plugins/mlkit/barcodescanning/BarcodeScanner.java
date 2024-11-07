@@ -53,6 +53,8 @@ public class BarcodeScanner implements ImageAnalysis.Analyzer {
     @NonNull
     private final BarcodeScannerPlugin plugin;
 
+    private ImageCapture imageCapture;
+
     private final Point displaySize;
 
     @Nullable
@@ -99,6 +101,8 @@ public class BarcodeScanner implements ImageAnalysis.Analyzer {
         ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST).build();
         imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(plugin.getContext()), this);
 
+        imageCapture = new ImageCapture.Builder().build();
+
         ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(plugin.getContext());
         cameraProviderFuture.addListener(
             () -> {
@@ -115,7 +119,7 @@ public class BarcodeScanner implements ImageAnalysis.Analyzer {
 
                     // Start the camera
                     camera =
-                        processCameraProvider.bindToLifecycle((LifecycleOwner) plugin.getContext(), cameraSelector, preview, imageAnalysis);
+                        processCameraProvider.bindToLifecycle((LifecycleOwner) plugin.getContext(), cameraSelector, preview, imageAnalysis,imageCapture);
 
                     callback.success();
                 } catch (Exception exception) {
@@ -142,6 +146,33 @@ public class BarcodeScanner implements ImageAnalysis.Analyzer {
         scanSettings = null;
         barcodeRawValueVotes.clear();
     }
+
+    public void takePhoto(TakePhotoCallback callback) {
+        if (imageCapture == null) {
+            callback.error(new Exception("ImageCapture not initialized"));
+            return;
+        }
+    
+        // Créez un fichier de sortie pour l'image capturée
+        File photoFile = new File(plugin.getContext().getExternalFilesDir(null), "photo_" + System.currentTimeMillis() + ".jpg");
+    
+        ImageCapture.OutputFileOptions outputOptions = new ImageCapture.OutputFileOptions.Builder(photoFile).build();
+    
+        imageCapture.takePicture(outputOptions, ContextCompat.getMainExecutor(plugin.getContext()),
+            new ImageCapture.OnImageSavedCallback() {
+                @Override
+                public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
+                    Uri savedUri = Uri.fromFile(photoFile);
+                    callback.success(savedUri.toString());  // Retournez l'URI de l'image capturée
+                }
+    
+                @Override
+                public void onError(@NonNull ImageCaptureException exception) {
+                    callback.error(exception);
+                }
+            });
+    }
+    
 
     public void readBarcodesFromImage(String path, ScanSettings scanSettings, ReadBarcodesFromImageResultCallback callback)
         throws Exception {

@@ -43,7 +43,8 @@ typealias MLKitBarcodeScanner = MLKitBarcodeScanning.BarcodeScanner
             }
         }
     }
-
+    @objc public func takePhoto() {
+    }
     @objc public func stopScan() {
         DispatchQueue.main.async {
             self.showWebViewBackground()
