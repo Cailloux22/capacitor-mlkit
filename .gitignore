@@ -4,4 +4,7 @@ node_modules
 
 # VSCode
 .vscode/settings.json
-netexpocustompackage/
+netexpocustompackage/android/build
+netexpocustompackage/android/src/main
+netexpocustompackage/dist
+
