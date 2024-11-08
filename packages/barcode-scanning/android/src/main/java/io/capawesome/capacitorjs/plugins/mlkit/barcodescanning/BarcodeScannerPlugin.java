@@ -25,6 +25,7 @@ import io.capawesome.capacitorjs.plugins.mlkit.barcodescanning.classes.options.S
 import io.capawesome.capacitorjs.plugins.mlkit.barcodescanning.classes.results.GetMaxZoomRatioResult;
 import io.capawesome.capacitorjs.plugins.mlkit.barcodescanning.classes.results.GetMinZoomRatioResult;
 import io.capawesome.capacitorjs.plugins.mlkit.barcodescanning.classes.results.GetZoomRatioResult;
+import io.capawesome.capacitorjs.plugins.mlkit.barcodescanning.interfaces.TakePhotoCallback;
 import java.util.List;
 
 @CapacitorPlugin(
@@ -63,6 +64,26 @@ public class BarcodeScannerPlugin extends Plugin {
             Logger.error(TAG, exception.getMessage(), exception);
         }
     }
+
+    @PluginMethod
+    public void takePhoto(PluginCall call) {
+            implementation.takePhoto(new TakePhotoCallback(){
+                @Override
+                public void success(String imgUri) {
+                    JSObject result = new JSObject();
+                    result.put("img", imgUri);
+                    call.resolve(result);
+                }
+                @Override
+                public void error(Exception e) {
+                    Logger.error(TAG, "takePhoto failed.", e);
+                    call.reject(e.getMessage());
+                }
+            });
+        
+
+    }
+
 
     @PluginMethod
     public void startScan(PluginCall call) {

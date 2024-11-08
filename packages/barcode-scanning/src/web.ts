@@ -29,6 +29,10 @@ export class BarcodeScannerWeb
     throw this.createUnavailableException();
   }
 
+  async takePhoto(): Promise<string> {
+    throw this.createUnavailableException();
+  }
+
   async readBarcodesFromImage(
     _options: ReadBarcodesFromImageOptions,
   ): Promise<ReadBarcodesFromImageResult> {

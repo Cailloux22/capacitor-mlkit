@@ -279,6 +279,7 @@ If you can't see the camera view, make sure all elements in the DOM are not visi
 
 * [`startScan(...)`](#startscan)
 * [`stopScan()`](#stopscan)
+* [`takePhoto()`](#takephoto)
 * [`readBarcodesFromImage(...)`](#readbarcodesfromimage)
 * [`scan(...)`](#scan)
 * [`isSupported()`](#issupported)
@@ -344,15 +345,32 @@ Only available on Android and iOS.
 --------------------
 
 
+### takePhoto()
+
+```typescript
+takePhoto() => Promise<string>
+```
+
+Read barcodes from an image.
+
+Only available on Android and iOS.
+
+**Returns:** <code>Promise&lt;string&gt;</code>
+
+**Since:** 0.0.1
+
+--------------------
+
+
 ### readBarcodesFromImage(...)
 
 ```typescript
 readBarcodesFromImage(options: ReadBarcodesFromImageOptions) => Promise<ReadBarcodesFromImageResult>
 ```
 
-Read barcodes from an image.
+take a photo and return it as a string
 
-Only available on Android and iOS.
+Only available on Android
 
 | Param         | Type                                                                                  |
 | ------------- | ------------------------------------------------------------------------------------- |
@@ -360,7 +378,7 @@ Only available on Android and iOS.
 
 **Returns:** <code>Promise&lt;<a href="#readbarcodesfromimageresult">ReadBarcodesFromImageResult</a>&gt;</code>
 
-**Since:** 0.0.1
+**Since:** 1.0.0
 
 --------------------
 
