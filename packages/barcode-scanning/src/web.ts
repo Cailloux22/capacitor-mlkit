@@ -10,6 +10,7 @@ import type {
   IsTorchAvailableResult,
   IsTorchEnabledResult,
   PermissionStatus,
+  Photo,
   ReadBarcodesFromImageOptions,
   ReadBarcodesFromImageResult,
   ScanResult,
@@ -29,7 +30,7 @@ export class BarcodeScannerWeb
     throw this.createUnavailableException();
   }
 
-  async takePhoto(): Promise<string> {
+  async takePhoto(): Promise<Photo> {
     throw this.createUnavailableException();
   }
 

@@ -51,6 +51,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.io.File;
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import android.util.Base64;
 
 public class BarcodeScanner implements ImageAnalysis.Analyzer {
 
@@ -151,6 +155,19 @@ public class BarcodeScanner implements ImageAnalysis.Analyzer {
         barcodeRawValueVotes.clear();
     }
 
+    // Fonction utilitaire pour lire un fichier en tableau d'octets
+    private byte[] readFileToByteArray(File file) throws IOException {
+        FileInputStream fis = new FileInputStream(file);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        byte[] buffer = new byte[1024];
+        int bytesRead;
+        while ((bytesRead = fis.read(buffer)) != -1) {
+            baos.write(buffer, 0, bytesRead);
+        }
+        fis.close();
+        return baos.toByteArray();
+    }
+
     public void takePhoto(TakePhotoCallback callback) {
         if (imageCapture == null) {
             callback.error(new Exception("ImageCapture not initialized"));
@@ -166,17 +183,22 @@ public class BarcodeScanner implements ImageAnalysis.Analyzer {
             new ImageCapture.OnImageSavedCallback() {
                 @Override
                 public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
-                    Uri savedUri = Uri.fromFile(photoFile);
-                    callback.success(savedUri.toString());  // Retournez l'URI de l'image capturée
-                }
+                    try{
+                        byte[] imageData = readFileToByteArray(photoFile);
+                        String base64Image = Base64.encodeToString(imageData, Base64.NO_WRAP);
+                        callback.success(base64Image);  // Retournez l'URI de l'image capturée
+                    } catch (IOException e) {
+                        callback.error(e);
+                    }
+                }   
     
                 @Override
                 public void onError(@NonNull ImageCaptureException exception) {
                     callback.error(exception);
                 }
             });
-    }
-    
+        }
+        
 
     public void readBarcodesFromImage(String path, ScanSettings scanSettings, ReadBarcodesFromImageResultCallback callback)
         throws Exception {

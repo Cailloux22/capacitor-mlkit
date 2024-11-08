@@ -24,13 +24,13 @@ export interface BarcodeScannerPlugin {
    *
    * @since 0.0.1
    */
-  takePhoto():Promise<string>
+  takePhoto():Promise<Photo>
   /**
    * take a photo and return it as a string
    * 
    * Only available on Android
    * 
-   * @since 1.0.0
+   * @since 6.3.10
    */
   readBarcodesFromImage(
     options: ReadBarcodesFromImageOptions,
@@ -284,6 +284,14 @@ export interface ReadBarcodesFromImageResult {
    * @since 0.0.1
    */
   barcodes: Barcode[];
+}
+export interface Photo {
+  /**
+   * The Photo in base 64.
+   *
+   * @since 6.3.10
+   */
+  img: String;
 }
 
 /**

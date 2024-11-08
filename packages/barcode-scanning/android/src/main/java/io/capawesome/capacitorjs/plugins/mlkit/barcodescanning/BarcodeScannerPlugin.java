@@ -28,6 +28,7 @@ import io.capawesome.capacitorjs.plugins.mlkit.barcodescanning.classes.results.G
 import io.capawesome.capacitorjs.plugins.mlkit.barcodescanning.interfaces.TakePhotoCallback;
 import java.util.List;
 
+
 @CapacitorPlugin(
     name = "BarcodeScanner",
     permissions = { @Permission(strings = { Manifest.permission.CAMERA }, alias = BarcodeScannerPlugin.CAMERA) }
@@ -69,9 +70,9 @@ public class BarcodeScannerPlugin extends Plugin {
     public void takePhoto(PluginCall call) {
             implementation.takePhoto(new TakePhotoCallback(){
                 @Override
-                public void success(String imgUri) {
+                public void success(String base64Image) {
                     JSObject result = new JSObject();
-                    result.put("img", imgUri);
+                    result.put("img", base64Image);
                     call.resolve(result);
                 }
                 @Override
