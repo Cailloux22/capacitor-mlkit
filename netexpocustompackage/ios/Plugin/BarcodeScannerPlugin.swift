@@ -58,6 +58,17 @@ public class BarcodeScannerPlugin: CAPPlugin {
         })
     }
 
+    @objc func takePhoto(_ call: CAPPluginCall) {
+        guard let base64Image = implementation?.takePhoto() else {
+            call.reject("Failed to capture photo")
+            return
+        }
+        
+        call.resolve([
+            "base64Image": base64Image
+        ])
+    }
+
     @objc func stopScan(_ call: CAPPluginCall) {
         implementation?.stopScan()
         call.resolve()

@@ -7,4 +7,5 @@ node_modules
 netexpocustompackage/android/build
 netexpocustompackage/android/src/main
 netexpocustompackage/dist
+netexpocustompackage/ios/Plugin
 

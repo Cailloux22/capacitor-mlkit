@@ -5,6 +5,7 @@
 // each method the plugin supports using the CAP_PLUGIN_METHOD macro.
 CAP_PLUGIN(BarcodeScannerPlugin, "BarcodeScanner",
            CAP_PLUGIN_METHOD(startScan, CAPPluginReturnPromise);
+           CAP_PLUGIN_METHOD(takePhoto, CAPPluginReturnPromise);
            CAP_PLUGIN_METHOD(stopScan, CAPPluginReturnPromise);
            CAP_PLUGIN_METHOD(readBarcodesFromImage, CAPPluginReturnPromise);
            CAP_PLUGIN_METHOD(scan, CAPPluginReturnPromise);

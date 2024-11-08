@@ -1,19 +1,10 @@
-<br />
-<div align="center">
-  <img src="https://avatars.githubusercontent.com/u/105555861" width="128" height="128" />
-</div>
-<h3 align="center">ML Kit</h3>
-<br />
-<p align="center">
-  <a href="https://github.com/capawesome-team/capacitor-mlkit"><img src="https://img.shields.io/maintenance/yes/2024?style=flat-square" /></a>
-  <a href="https://github.com/capawesome-team/capacitor-mlkit/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/capawesome-team/capacitor-mlkit/ci.yml?branch=main&style=flat-square" /></a>
-  <a href="https://github.com/capawesome-team/capacitor-mlkit"><img src="https://img.shields.io/github/license/capawesome-team/capacitor-mlkit?style=flat-square" /></a>
-  <a href="https://github.com/capawesome-team"><img src="https://img.shields.io/badge/part%20of-capawesome-%234f46e5?style=flat-square" /></a>
-  <a href="https://turborepo.org/"><img src="https://img.shields.io/badge/maintained%20with-turborepo-%237f6ab2?style=flat-square" /></a>
-  <!-- <a href="https://devlibrary.withgoogle.com/products/mlkit/repos/robingenz-capacitor-mlkit"><img src="https://img.shields.io/badge/part%20of-DevLibrary-9cf?color=4285F4&logoColor=4285F4&logo=google&style=flat-square" /></a> -->
-</p>
 
-## Features
+## Voir le dossier Netexpo
+./netexpocustompackage
+
+
+
+## Features by ML Kit
 
 Capacitor ML Kit is a collection of Capacitor plugins that enable the use of the [ML Kit SDKs](https://developers.google.com/ml-kit) in Capacitor.[^1]
 

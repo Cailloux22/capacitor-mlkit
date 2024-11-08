@@ -180,24 +180,24 @@ public class BarcodeScanner implements ImageAnalysis.Analyzer {
         ImageCapture.OutputFileOptions outputOptions = new ImageCapture.OutputFileOptions.Builder(photoFile).build();
     
         imageCapture.takePicture(outputOptions, ContextCompat.getMainExecutor(plugin.getContext()),
-            new ImageCapture.OnImageSavedCallback() {
-                @Override
-                public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
-                    try{
-                        byte[] imageData = readFileToByteArray(photoFile);
-                        String base64Image = Base64.encodeToString(imageData, Base64.NO_WRAP);
-                        callback.success(base64Image);  // Retournez l'URI de l'image capturée
-                    } catch (IOException e) {
-                        callback.error(e);
-                    }
-                }   
-    
-                @Override
-                public void onError(@NonNull ImageCaptureException exception) {
-                    callback.error(exception);
+        new ImageCapture.OnImageSavedCallback() {
+            @Override
+            public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
+                try{
+                    byte[] imageData = readFileToByteArray(photoFile);
+                    String base64Image = Base64.encodeToString(imageData, Base64.NO_WRAP);
+                    callback.success(base64Image);  // Retournez l'URI de l'image capturée
+                } catch (IOException e) {
+                    callback.error(e);
                 }
-            });
-        }
+            }   
+
+            @Override
+            public void onError(@NonNull ImageCaptureException exception) {
+                callback.error(exception);
+            }
+        });
+    }
         
 
     public void readBarcodesFromImage(String path, ScanSettings scanSettings, ReadBarcodesFromImageResultCallback callback)

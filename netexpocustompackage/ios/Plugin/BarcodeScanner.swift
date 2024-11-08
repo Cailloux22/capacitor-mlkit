@@ -6,6 +6,8 @@ import AVFoundation
 import Capacitor
 import MLKitBarcodeScanning
 import MLKitVision
+import UIKit
+
 
 typealias MLKitBarcodeScanner = MLKitBarcodeScanning.BarcodeScanner
 
@@ -13,6 +15,8 @@ typealias MLKitBarcodeScanner = MLKitBarcodeScanning.BarcodeScanner
 
     public let plugin: BarcodeScannerPlugin
 
+    private var captureSession: AVCaptureSession?
+    private var imageOutput: AVCapturePhotoOutput?
     private var cameraView: BarcodeScannerView?
     private var scanCompletionHandler: (([Barcode]?, AVCaptureVideoOrientation?, String?) -> Void)?
     private var barcodeRawValueVotes = [String: Int]()
@@ -35,6 +39,16 @@ typealias MLKitBarcodeScanner = MLKitBarcodeScanning.BarcodeScanner
                 self.hideWebViewBackground()
                 webView.superview?.insertSubview(cameraView, belowSubview: webView)
                 self.cameraView = cameraView
+
+                // Initialisation de la capture de photo
+                self.imageOutput = AVCapturePhotoOutput()
+                if let captureSession = cameraView.captureSession, let imageOutput = self.imageOutput {
+                    if captureSession.canAddOutput(imageOutput) {
+                        captureSession.addOutput(imageOutput)
+                    }
+                }
+
+
                 completion(nil)
             } catch let error {
                 self.showWebViewBackground()
@@ -43,8 +57,38 @@ typealias MLKitBarcodeScanner = MLKitBarcodeScanning.BarcodeScanner
             }
         }
     }
-    @objc public func takePhoto() {
+
+    @objc public func takePhoto() -> String? {
+        guard let imageOutput = self.imageOutput else {
+            return nil
+        }
+
+        let semaphore = DispatchSemaphore(value: 0)
+        var base64Image: String? = nil
+        
+        let photoSettings = AVCapturePhotoSettings()
+        photoSettings.isAutoStillImageStabilizationEnabled = true
+        photoSettings.flashMode = .auto
+        
+        // Utiliser le délégué de capture
+        let photoDelegate = PhotoCaptureDelegate { result in
+            switch result {
+            case .success(let image):
+                base64Image = image
+            case .failure:
+                base64Image = nil
+            }
+            semaphore.signal()
+        }
+        
+        imageOutput.capturePhoto(with: photoSettings, delegate: photoDelegate)
+        
+        // Attendre la fin de la capture
+        semaphore.wait()
+        
+        return base64Image
     }
+
     @objc public func stopScan() {
         DispatchQueue.main.async {
             self.showWebViewBackground()
@@ -309,5 +353,30 @@ extension BarcodeScanner: BarcodeScannerViewDelegate {
 
     public func onTorchToggle() {
         toggleTorch()
+    }
+}
+
+// Déléguer pour gérer la capture de la photo
+class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
+    private let callback: (Result<String, Error>) -> Void
+    
+    init(callback: @escaping (Result<String, Error>) -> Void) {
+        self.callback = callback
+    }
+
+    func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
+        if let error = error {
+            callback(.failure(error))
+            return
+        }
+        
+        guard let imageData = photo.fileDataRepresentation() else {
+            callback(.failure(NSError(domain: "PhotoCapture", code: -1, userInfo: [NSLocalizedDescriptionKey: "Could not get image data"])))
+            return
+        }
+
+        // Convertir l'image en Base64
+        let base64Image = imageData.base64EncodedString(options: .endLineWithLineFeed)
+        callback(.success(base64Image))
     }
 }
