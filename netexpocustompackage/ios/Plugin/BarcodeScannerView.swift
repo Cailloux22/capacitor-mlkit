@@ -29,6 +29,10 @@ public protocol BarcodeScannerViewDelegate {
     private var detectionAreaView: UIView?
     private var detectionAreaViewFrame: CGRect?
 
+    func getCaptureSession() -> AVCaptureSession? {
+        return captureSession
+    }
+
     init (implementation: BarcodeScanner, settings: ScanSettings) throws {
         self.implementation = implementation
         self.settings = settings
