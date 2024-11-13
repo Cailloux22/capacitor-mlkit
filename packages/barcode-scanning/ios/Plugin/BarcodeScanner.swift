@@ -42,7 +42,7 @@ typealias MLKitBarcodeScanner = MLKitBarcodeScanning.BarcodeScanner
 
                 // Initialisation de la capture de photo
                 self.imageOutput = AVCapturePhotoOutput()
-                if let captureSession = cameraView.captureSession, let imageOutput = self.imageOutput {
+                if let captureSession = cameraView.getCaptureSession(), let imageOutput = self.imageOutput {
                     if captureSession.canAddOutput(imageOutput) {
                         captureSession.addOutput(imageOutput)
                     }
@@ -357,26 +357,31 @@ extension BarcodeScanner: BarcodeScannerViewDelegate {
 }
 
 // Déléguer pour gérer la capture de la photo
+enum MyResult<Success, Failure: Error> {
+    case success(Success)
+    case failure(Failure)
+}
+
 class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
-    private let callback: (Result<String, Error>) -> Void
+    private let callback: (MyResult<String, Error>) -> Void
     
-    init(callback: @escaping (Result<String, Error>) -> Void) {
+    init(callback: @escaping (MyResult<String, Error>) -> Void) {
         self.callback = callback
     }
 
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
         if let error = error {
-            callback(.failure(error))
+            callback(MyResult.failure(error))
             return
         }
         
         guard let imageData = photo.fileDataRepresentation() else {
-            callback(.failure(NSError(domain: "PhotoCapture", code: -1, userInfo: [NSLocalizedDescriptionKey: "Could not get image data"])))
+            callback(MyResult.failure(NSError(domain: "PhotoCapture", code: -1, userInfo: [NSLocalizedDescriptionKey: "Could not get image data"])))
             return
         }
 
         // Convertir l'image en Base64
         let base64Image = imageData.base64EncodedString(options: .endLineWithLineFeed)
-        callback(.success(base64Image))
+        callback(MyResult.success(base64Image))
     }
 }
