@@ -8,4 +8,5 @@ netexpocustompackage/android/build
 netexpocustompackage/android/src/main
 netexpocustompackage/dist
 netexpocustompackage/ios/Plugin
-
+netexpocustompackage/android/src
+netexpocustompackage/ios

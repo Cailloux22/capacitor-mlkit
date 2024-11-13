@@ -39,7 +39,7 @@
     "native"
   ],
   "scripts": {
-    "prepublishOnly": "npm version patch && npm run clean && npm run android && npm run ios && npm run build",
+    "prepublishOnly": "npm run clean && npm run android && npm run ios && npm run build && npm version patch",
     "clean": "rimraf ./dist && rimraf ./android/src/main/ ",
     "android": "cd ../packages/barcode-scanning/ && cp -r ./android/src/main/ ../../netexpocustompackage/android/src/ ",
     "ios": "cd ../packages/barcode-scanning/ && cp -r ./ios/Plugin/ ../../netexpocustompackage/ios/ ",
