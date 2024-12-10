@@ -68,7 +68,7 @@ typealias MLKitBarcodeScanner = MLKitBarcodeScanning.BarcodeScanner
         
         let photoSettings = AVCapturePhotoSettings()
         photoSettings.isAutoStillImageStabilizationEnabled = true
-        photoSettings.flashMode = .auto
+        photoSettings.flashMode = .off
         
         // Utiliser le délégué de capture
         let photoDelegate = PhotoCaptureDelegate { result in

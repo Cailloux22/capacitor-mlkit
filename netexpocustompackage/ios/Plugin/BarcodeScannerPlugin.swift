@@ -65,7 +65,7 @@ public class BarcodeScannerPlugin: CAPPlugin {
         }
         
         call.resolve([
-            "base64Image": base64Image
+            "img": base64Image
         ])
     }
 
