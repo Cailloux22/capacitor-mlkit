@@ -2,6 +2,12 @@
 
 Unofficial Capacitor plugin for [ML Kit Face Detection](https://developers.google.com/ml-kit/vision/face-detection).[^1]
 
+<div class="capawesome-z29o10a">
+  <a href="https://cloud.capawesome.io/" target="_blank">
+    <img alt="Deliver Live Updates to your Capacitor app with Capawesome Cloud" src="https://cloud.capawesome.io/assets/banners/cloud-deploy-real-time-app-updates.png?t=1" />
+  </a>
+</div>
+
 ## Installation
 
 ```bash
@@ -10,6 +16,8 @@ npx cap sync
 ```
 
 ### Android
+
+#### Dependencies
 
 You need to add the following meta data **in** the `application` tag in your `AndroidManifest.xml`:
 
@@ -20,10 +28,22 @@ You need to add the following meta data **in** the `application` tag in your `An
 
 #### Variables
 
-This plugin will use the following project variables (defined in your app’s `variables.gradle` file):
+If needed, you can define the following project variable in your app’s `variables.gradle` file to change the default version of the dependency:
 
-- `$mlkitFaceDetectionVersion` version of `com.google.mlkit:face-detection` (default: `16.1.5`)
+- `$mlkitFaceDetectionVersion` version of `com.google.mlkit:face-detection` (default: `16.1.7`)
 - `$playServicesMlkitFaceDetectionVersion` version of `com.google.android.gms:play-services-mlkit-face-detection` (default: `17.1.0`)
+
+This can be useful if you encounter dependency conflicts with other plugins in your project.
+
+### iOS
+
+#### Minimum Deployment Target
+
+Make sure to set the deployment target in your `ios/App/Podfile` to at least `15.5`:
+
+```ruby
+platform :ios, '15.5'
+```
 
 ## Configuration
 

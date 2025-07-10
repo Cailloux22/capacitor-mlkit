@@ -23,14 +23,16 @@
     "affected:fmt": "turbo run fmt --since=origin/main",
     "affected:docgen": "turbo run docgen --since=origin/main",
     "affected:build": "turbo run build --since=origin/main",
+    "affected:ios:pod:install": "turbo run ios:pod:install --since=origin/main --concurrency=1 --no-cache",
     "changeset": "changeset",
     "release": "npm run build && changeset publish",
     "release:preview": "pkg-pr-new publish './packages/*'"
   },
   "devDependencies": {
-    "@changesets/cli": "2.21.1",
+    "@changesets/cli": "2.27.12",
     "@robingenz/changelog-github": "0.0.1",
     "pkg-pr-new": "0.0.20",
+    "prettier-plugin-java": "2.6.7",
     "turbo": "1.1.6"
   },
   "description": "<br />\r <div align=\"center\">\r   <img src=\"https://avatars.githubusercontent.com/u/105555861\" width=\"128\" height=\"128\" />\r </div>\r <h3 align=\"center\">ML Kit</h3>\r <br />\r <p align=\"center\">\r   <a href=\"https://github.com/capawesome-team/capacitor-mlkit\"><img src=\"https://img.shields.io/maintenance/yes/2024?style=flat-square\" /></a>\r   <a href=\"https://github.com/capawesome-team/capacitor-mlkit/actions/workflows/ci.yml\"><img src=\"https://img.shields.io/github/actions/workflow/status/capawesome-team/capacitor-mlkit/ci.yml?branch=main&style=flat-square\" /></a>\r   <a href=\"https://github.com/capawesome-team/capacitor-mlkit\"><img src=\"https://img.shields.io/github/license/capawesome-team/capacitor-mlkit?style=flat-square\" /></a>\r   <a href=\"https://github.com/capawesome-team\"><img src=\"https://img.shields.io/badge/part%20of-capawesome-%234f46e5?style=flat-square\" /></a>\r   <a href=\"https://turborepo.org/\"><img src=\"https://img.shields.io/badge/maintained%20with-turborepo-%237f6ab2?style=flat-square\" /></a>\r   <!-- <a href=\"https://devlibrary.withgoogle.com/products/mlkit/repos/robingenz-capacitor-mlkit\"><img src=\"https://img.shields.io/badge/part%20of-DevLibrary-9cf?color=4285F4&logoColor=4285F4&logo=google&style=flat-square\" /></a> -->\r </p>",
