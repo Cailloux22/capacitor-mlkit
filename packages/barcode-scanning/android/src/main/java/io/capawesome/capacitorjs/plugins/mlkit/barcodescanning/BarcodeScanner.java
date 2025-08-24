@@ -92,6 +92,15 @@ public class BarcodeScanner implements ImageAnalysis.Analyzer {
 
     public BarcodeScanner(BarcodeScannerPlugin plugin) {
         this.plugin = plugin;
+        this.displaySize = this.getDisplaySize();
+    }
+
+    private Point getDisplaySize() {
+        WindowManager wm = (WindowManager) plugin.getContext().getSystemService(Context.WINDOW_SERVICE);
+        Display display = wm.getDefaultDisplay();
+        Point size = new Point();
+        display.getRealSize(size);
+        return size;
     }
 
     /**
@@ -111,7 +120,6 @@ public class BarcodeScanner implements ImageAnalysis.Analyzer {
     public void startScan(ScanSettings scanSettings, StartScanResultCallback callback) {
         // Stop the camera if running
         stopScan();
-
         // Hide WebView background
         hideWebViewBackground();
 
@@ -120,10 +128,7 @@ public class BarcodeScanner implements ImageAnalysis.Analyzer {
         BarcodeScannerOptions options = buildBarcodeScannerOptions(scanSettings);
         barcodeScannerInstance = BarcodeScanning.getClient(options);
 
-        ImageAnalysis imageAnalysis = new ImageAnalysis.Builder()
-            .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-            .setTargetResolution(scanSettings.resolution)
-            .build();
+        ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST).build();
         imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(plugin.getContext()), this);
 
         imageCapture = new ImageCapture.Builder().build();
@@ -136,26 +141,15 @@ public class BarcodeScanner implements ImageAnalysis.Analyzer {
 
                     CameraSelector cameraSelector = new CameraSelector.Builder().requireLensFacing(this.scanSettings.lensFacing).build();
 
-                    previewView = new PreviewView(plugin.getActivity());
-                    previewView.setLayoutParams(
-                        new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
-                    );
+                    previewView = plugin.getActivity().findViewById(R.id.preview_view);
                     previewView.setScaleType(PreviewView.ScaleType.FILL_CENTER);
-                    previewView.setBackgroundColor(Color.BLACK);
-
-                    // Add preview view behind the WebView
-                    ((ViewGroup) plugin.getBridge().getWebView().getParent()).addView(previewView, 0);
 
                     Preview preview = new Preview.Builder().build();
                     preview.setSurfaceProvider(previewView.getSurfaceProvider());
 
                     // Start the camera
-                    camera = processCameraProvider.bindToLifecycle(
-                        (LifecycleOwner) plugin.getContext(),
-                        cameraSelector,
-                        preview,
-                        imageAnalysis
-                    );
+                    camera =
+                        processCameraProvider.bindToLifecycle((LifecycleOwner) plugin.getContext(), cameraSelector, preview, imageAnalysis,imageCapture);
 
                     callback.success();
                 } catch (Exception exception) {
@@ -165,6 +159,7 @@ public class BarcodeScanner implements ImageAnalysis.Analyzer {
             ContextCompat.getMainExecutor(plugin.getContext())
         );
     }
+
 
     /**
      * Must run on UI thread.
