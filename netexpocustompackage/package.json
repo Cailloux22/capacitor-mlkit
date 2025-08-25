@@ -1,6 +1,6 @@
 {
   "name": "netexpo-mlkit-barcode-scanner",
-  "version": "1.0.23",
+  "version": "1.0.24",
   "description": "Netexpo Capacitor (v7) plugin for ML Kit Barcode Scanning by mathieu.",
   "main": "dist/plugin.cjs.js",
   "module": "dist/esm/index.js",
