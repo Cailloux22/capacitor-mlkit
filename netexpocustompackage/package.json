@@ -1,7 +1,7 @@
 {
   "name": "netexpo-mlkit-barcode-scanner",
-  "version": "1.0.24",
-  "description": "Netexpo Capacitor (v7) plugin for ML Kit Barcode Scanning by mathieu.",
+  "version": "1.0.26",
+  "description": "Netexpo Capacitor (v7) plugin for ML Kit Barcode Scanning by mathieu [including NPM LINK for local test IONIC: npm link netexpo-mlkit-barcode-scanner]",
   "main": "dist/plugin.cjs.js",
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
@@ -41,9 +41,9 @@
   "scripts": {
     "prepublishOnly": "npm run clean && npm run android && npm run ios && npm run build && npm version patch",
     "clean": "rimraf ./dist && rimraf ./android/src/main/ ",
-    "android": "cd ../packages/barcode-scanning/ && cp -r ./android/src/main/ ../../netexpocustompackage/android/src/ ",
-    "ios": "cd ../packages/barcode-scanning/ && cp -r ./ios/Plugin/ ../../netexpocustompackage/ios/ ",
-    "build": "cd .. && npm run build && cp -r ./packages/barcode-scanning/dist/ ./netexpocustompackage/"
+    "android": "cd ../packages/barcode-scanning/ && cp -r ./android/src/main/ ../../netexpocustompackage/android/src/main ",
+    "ios": "cd ../packages/barcode-scanning/ && cp -r ./ios/Plugin/ ../../netexpocustompackage/ios/Plugin ",
+    "build": "cd .. && npm run build && cp -r ./packages/barcode-scanning/dist/ ./netexpocustompackage/dist"
   },
   "devDependencies": {
     "@capacitor-mlkit/barcode-scanning": "^7.3.0",
