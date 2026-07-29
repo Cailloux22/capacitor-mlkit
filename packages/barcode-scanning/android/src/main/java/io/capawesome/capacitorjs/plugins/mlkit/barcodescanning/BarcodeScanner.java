@@ -12,6 +12,7 @@ import android.graphics.Point;
 import android.media.Image;
 import android.net.Uri;
 import android.provider.Settings;
+import android.util.Base64;
 import android.view.Display;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -22,10 +23,12 @@ import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageAnalysis;
-import androidx.camera.core.ImageProxy;
-import androidx.camera.core.Preview;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
+import androidx.camera.core.ImageProxy;
+import androidx.camera.core.Preview;
+import androidx.camera.core.resolutionselector.ResolutionSelector;
+import androidx.camera.core.resolutionselector.ResolutionStrategy;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
@@ -50,14 +53,13 @@ import io.capawesome.capacitorjs.plugins.mlkit.barcodescanning.classes.results.G
 import io.capawesome.capacitorjs.plugins.mlkit.barcodescanning.classes.results.GetMinZoomRatioResult;
 import io.capawesome.capacitorjs.plugins.mlkit.barcodescanning.classes.results.GetZoomRatioResult;
 import io.capawesome.capacitorjs.plugins.mlkit.barcodescanning.interfaces.TakePhotoCallback;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.io.File;
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-import android.util.Base64;
 
 public class BarcodeScanner implements ImageAnalysis.Analyzer {
 
@@ -120,10 +122,15 @@ public class BarcodeScanner implements ImageAnalysis.Analyzer {
         BarcodeScannerOptions options = buildBarcodeScannerOptions(scanSettings);
         barcodeScannerInstance = BarcodeScanning.getClient(options);
 
+        ResolutionSelector resolutionSelector = new ResolutionSelector.Builder()
+            .setResolutionStrategy(new ResolutionStrategy(scanSettings.resolution, ResolutionStrategy.FALLBACK_RULE_CLOSEST_LOWER))
+            .build();
+
         ImageAnalysis imageAnalysis = new ImageAnalysis.Builder()
             .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-            .setTargetResolution(scanSettings.resolution)
+            .setResolutionSelector(resolutionSelector)
             .build();
+
         imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(plugin.getContext()), this);
 
         imageCapture = new ImageCapture.Builder().build();
@@ -205,32 +212,34 @@ public class BarcodeScanner implements ImageAnalysis.Analyzer {
             callback.error(new Exception("ImageCapture not initialized"));
             return;
         }
-    
+
         // Créez un fichier de sortie pour l'image capturée
         File photoFile = new File(plugin.getContext().getExternalFilesDir(null), "photo_" + System.currentTimeMillis() + ".jpg");
-    
-        ImageCapture.OutputFileOptions outputOptions = new ImageCapture.OutputFileOptions.Builder(photoFile).build();
-    
-        imageCapture.takePicture(outputOptions, ContextCompat.getMainExecutor(plugin.getContext()),
-        new ImageCapture.OnImageSavedCallback() {
-            @Override
-            public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
-                try{
-                    byte[] imageData = readFileToByteArray(photoFile);
-                    String base64Image = Base64.encodeToString(imageData, Base64.NO_WRAP);
-                    callback.success(base64Image);  // Retournez l'URI de l'image capturée
-                } catch (IOException e) {
-                    callback.error(e);
-                }
-            }   
 
-            @Override
-            public void onError(@NonNull ImageCaptureException exception) {
-                callback.error(exception);
+        ImageCapture.OutputFileOptions outputOptions = new ImageCapture.OutputFileOptions.Builder(photoFile).build();
+
+        imageCapture.takePicture(
+            outputOptions,
+            ContextCompat.getMainExecutor(plugin.getContext()),
+            new ImageCapture.OnImageSavedCallback() {
+                @Override
+                public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
+                    try {
+                        byte[] imageData = readFileToByteArray(photoFile);
+                        String base64Image = Base64.encodeToString(imageData, Base64.NO_WRAP);
+                        callback.success(base64Image); // Retournez l'URI de l'image capturée
+                    } catch (IOException e) {
+                        callback.error(e);
+                    }
+                }
+
+                @Override
+                public void onError(@NonNull ImageCaptureException exception) {
+                    callback.error(exception);
+                }
             }
-        });
+        );
     }
-        
 
     public void readBarcodesFromImage(String path, ScanSettings scanSettings, ReadBarcodesFromImageResultCallback callback)
         throws Exception {
@@ -486,7 +495,15 @@ public class BarcodeScanner implements ImageAnalysis.Analyzer {
 
     private GmsBarcodeScannerOptions buildGmsBarcodeScannerOptions(ScanSettings scanSettings) {
         int[] formats = scanSettings.formats.length == 0 ? new int[] { Barcode.FORMAT_ALL_FORMATS } : scanSettings.formats;
-        GmsBarcodeScannerOptions options = new GmsBarcodeScannerOptions.Builder().setBarcodeFormats(formats[0], formats).build();
+        boolean autoZoom = scanSettings.autoZoom;
+        GmsBarcodeScannerOptions options;
+
+        if (autoZoom) {
+            options = new GmsBarcodeScannerOptions.Builder().setBarcodeFormats(formats[0], formats).enableAutoZoom().build();
+        } else {
+            options = new GmsBarcodeScannerOptions.Builder().setBarcodeFormats(formats[0], formats).build();
+        }
+
         return options;
     }
 

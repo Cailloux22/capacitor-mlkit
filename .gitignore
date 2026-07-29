@@ -1,4 +1,5 @@
 node_modules
+.build
 .DS_Store
 .turbo
 
@@ -10,3 +11,9 @@ netexpocustompackage/dist
 netexpocustompackage/ios/Plugin
 netexpocustompackage/android/src
 netexpocustompackage/ios
+
+# Others
+CLAUDE.md
+AGENTS.md
+TODO.md
+plans/

@@ -1,14 +1,44 @@
-# @capacitor-mlkit/document-scanner
+# Capacitor ML Kit Document Scanner Plugin
 
 Unofficial Capacitor plugin for [ML Kit Document Scanner](https://developers.google.com/ml-kit/vision/doc-scanner).[^1]
 
 <div class="capawesome-z29o10a">
   <a href="https://cloud.capawesome.io/" target="_blank">
-    <img alt="Deliver Live Updates to your Capacitor app with Capawesome Cloud" src="https://cloud.capawesome.io/assets/banners/cloud-deploy-real-time-app-updates.png?t=1" />
+    <img alt="Deliver Live Updates to your Capacitor app with Capawesome Cloud" src="https://cloud.capawesome.io/assets/banners/cloud-build-and-deploy-capacitor-apps.png?t=1" />
   </a>
 </div>
 
+## Use Cases
+
+The Document Scanner plugin is typically used whenever an app needs to digitize paper documents with the camera, for example:
+
+- **Receipt and expense capture**: Let users scan receipts and invoices as JPEG images or PDF files for expense tracking.
+- **Document archiving**: Digitize contracts, letters, and other paperwork into multi-page PDF documents.
+- **Form submission**: Let users scan and submit signed forms or supporting documents in your app.
+- **Clean document photos**: Use the ML-enabled image cleaning capabilities to remove stains and fingers from scanned pages.
+
+## Compatibility
+
+| Plugin Version | Capacitor Version | Status         |
+| -------------- | ----------------- | -------------- |
+| 8.x.x          | >=8.x.x           | Active support |
+
 ## Installation
+
+You can use our **AI-Assisted Setup** to install the plugin.
+Add the [Capawesome Skills](https://github.com/capawesome-team/skills) to your AI tool using the following command:
+
+```bash
+npx skills add capawesome-team/skills --skill capacitor-plugins
+```
+
+Then use the following prompt:
+
+```
+Use the `capacitor-plugins` skill from `capawesome-team/skills` to install the `@capacitor-mlkit/document-scanner` plugin in my project.
+```
+
+If you prefer **Manual Setup**, install the plugin by running the following commands and follow the platform-specific instructions below:
 
 ```bash
 npm install @capacitor-mlkit/document-scanner
@@ -21,40 +51,55 @@ npx cap sync
 
 If needed, you can define the following project variable in your app’s `variables.gradle` file to change the default version of the dependency:
 
-- `$mlkitDocumentScannerVersion` version of `com.google.android.gms:play-services-mlkit-document-scanner` (default: `16.0.0-beta1`)
+- `$mlkitDocumentScannerVersion` version of `com.google.android.gms:play-services-mlkit-document-scanner` (default: `16.0.0`)
 
 This can be useful if you encounter dependency conflicts with other plugins in your project.
 
 ## Usage
 
+The following examples show how to scan a document and how to check and install the Google Document Scanner module.
+
+### Scan a document
+
+Start the document scanning process, which opens the ML Kit Document Scanner UI. You can allow gallery imports, limit the number of pages, and choose the result formats and scanner mode. Only available on Android:
+
 ```typescript
 import { DocumentScanner } from '@capacitor-mlkit/document-scanner';
 
-async function startScan() {
-  try {
-    const result = await DocumentScanner.scanDocument({
-      galleryImportAllowed: true,
-      pageLimit: 5,
-      resultFormats: 'JPEG_PDF',
-      scannerMode: 'FULL',
-    });
+const scanDocument = async () => {
+  const result = await DocumentScanner.scanDocument({
+    galleryImportAllowed: true,
+    pageLimit: 5,
+    resultFormats: 'JPEG_PDF',
+    scannerMode: 'FULL',
+  });
 
-    console.log('Scan successful:', result);
+  console.log('Scanned images:', result.scannedImages);
+  console.log('PDF info:', result.pdf);
+};
+```
 
-    if (result.scannedImages && result.scannedImages.length > 0) {
-      console.log('First image URI:', result.scannedImages[0]);
-      // Handle image URIs (e.g., display them)
-    }
+### Check and install the Google Document Scanner module
 
-    if (result.pdf) {
-      console.log('PDF URI:', result.pdf.uri);
-      console.log('PDF Page Count:', result.pdf.pageCount);
-      // Handle PDF URI (e.g., open or upload it)
-    }
-  } catch (error) {
-    console.error('Scan failed:', error);
-  }
-}
+The document scanner models, scanning logic, and UI flow are dynamically downloaded by Google Play services. Check if the module is available and install it if needed. The installation only starts with this call; the `googleDocumentScannerModuleInstallProgress` event notifies you about the progress. Only available on Android:
+
+```typescript
+import { DocumentScanner } from '@capacitor-mlkit/document-scanner';
+
+const isGoogleDocumentScannerModuleAvailable = async () => {
+  const result = await DocumentScanner.isGoogleDocumentScannerModuleAvailable();
+  console.log('Is Google Document Scanner module available:', result.available);
+};
+
+const installGoogleDocumentScannerModule = async () => {
+  await DocumentScanner.installGoogleDocumentScannerModule();
+  console.log('Google Document Scanner module installation started.');
+};
+
+DocumentScanner.addListener('googleDocumentScannerModuleInstallProgress', (event) => {
+  console.log('Installation progress:', event.progress, '%');
+  console.log('Current state:', event.state);
+});
 ```
 
 ## API
@@ -84,13 +129,13 @@ Starts the document scanning process.
 
 Only available on Android.
 
-| Param         | Type                                                | Description                            |
-| ------------- | --------------------------------------------------- | -------------------------------------- |
-| **`options`** | <code><a href="#scanoptions">ScanOptions</a></code> | Configuration options for the scanner. |
+| Param         | Type                                                |
+| ------------- | --------------------------------------------------- |
+| **`options`** | <code><a href="#scanoptions">ScanOptions</a></code> |
 
 **Returns:** <code>Promise&lt;<a href="#scanresult">ScanResult</a>&gt;</code>
 
-**Since:** 7.2.1
+**Since:** 7.3.0
 
 --------------------
 
@@ -109,7 +154,7 @@ Only available on Android.
 
 **Returns:** <code>Promise&lt;<a href="#isgoogledocumentscannermoduleavailableresult">IsGoogleDocumentScannerModuleAvailableResult</a>&gt;</code>
 
-**Since:** 7.2.1
+**Since:** 7.3.0
 
 --------------------
 
@@ -128,7 +173,7 @@ notify you when the installation is complete.
 
 Only available on Android.
 
-**Since:** 7.2.1
+**Since:** 7.3.0
 
 --------------------
 
@@ -150,7 +195,7 @@ Only available on Android.
 
 **Returns:** <code>Promise&lt;<a href="#pluginlistenerhandle">PluginListenerHandle</a>&gt;</code>
 
-**Since:** 7.2.1
+**Since:** 7.3.0
 
 --------------------
 
@@ -165,7 +210,7 @@ Remove all listeners for this plugin.
 
 Only available on Android.
 
-**Since:** 7.2.1
+**Since:** 7.3.0
 
 --------------------
 
@@ -179,37 +224,33 @@ Result of a document scan operation.
 
 | Prop                | Type                                        | Description                                                                                                          | Since |
 | ------------------- | ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- | ----- |
-| **`scannedImages`** | <code>string[]</code>                       | An array of URIs for the scanned image pages (JPEG). Present if 'JPEG' or 'JPEG_PDF' was requested in resultFormats. | 7.2.1 |
-| **`pdf`**           | <code><a href="#pdfinfo">PdfInfo</a></code> | Information about the generated PDF. Present if 'PDF' or 'JPEG_PDF' was requested in resultFormats.                  | 7.2.1 |
+| **`scannedImages`** | <code>string[]</code>                       | An array of URIs for the scanned image pages (JPEG). Present if 'JPEG' or 'JPEG_PDF' was requested in resultFormats. | 7.3.0 |
+| **`pdf`**           | <code><a href="#pdfinfo">PdfInfo</a></code> | Information about the generated PDF. Present if 'PDF' or 'JPEG_PDF' was requested in resultFormats.                  | 7.3.0 |
 
 
 #### PdfInfo
 
-Information about a generated PDF document.
-
 | Prop            | Type                | Description                        | Since |
 | --------------- | ------------------- | ---------------------------------- | ----- |
-| **`uri`**       | <code>string</code> | The URI of the generated PDF file. | 7.2.1 |
-| **`pageCount`** | <code>number</code> | The number of pages in the PDF.    | 7.2.1 |
+| **`uri`**       | <code>string</code> | The URI of the generated PDF file. | 7.3.0 |
+| **`pageCount`** | <code>number</code> | The number of pages in the PDF.    | 7.3.0 |
 
 
 #### ScanOptions
 
-Options for the document scanner.
-
 | Prop                       | Type                                                | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | Default                 | Since |
 | -------------------------- | --------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- | ----- |
-| **`galleryImportAllowed`** | <code>boolean</code>                                | Whether to allow importing from the photo gallery.                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | <code>false</code>      | 7.2.1 |
-| **`pageLimit`**            | <code>number</code>                                 | The maximum number of pages that can be scanned.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | <code>10</code>         | 7.2.1 |
-| **`resultFormats`**        | <code>'JPEG' \| 'PDF' \| 'JPEG_PDF'</code>          | The desired result formats. Can be 'JPEG', 'PDF', or 'JPEG_PDF'.                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | <code>'JPEG_PDF'</code> | 7.2.1 |
-| **`scannerMode`**          | <code>'FULL' \| 'BASE' \| 'BASE_WITH_FILTER'</code> | The scanner mode. BASE: Basic editing capabilities (crop, rotate, reorder pages, etc.). BASE_WITH_FILTER: Adds image filters (grayscale, auto image enhancement, etc.) to the BASE mode. FULL: Adds ML-enabled image cleaning capabilities (erase stains, fingers, etc.) to the BASE_WITH_FILTER mode. This mode will also allow future major features to be automatically added along with Google Play services updates, while the other two modes will maintain their current feature sets and only receive minor refinements. | <code>"FULL"</code>     | 7.2.1 |
+| **`galleryImportAllowed`** | <code>boolean</code>                                | Whether to allow importing from the photo gallery.                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | <code>false</code>      | 7.3.0 |
+| **`pageLimit`**            | <code>number</code>                                 | The maximum number of pages that can be scanned.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | <code>10</code>         | 7.3.0 |
+| **`resultFormats`**        | <code>'JPEG' \| 'PDF' \| 'JPEG_PDF'</code>          | The desired result formats. Can be 'JPEG', 'PDF', or 'JPEG_PDF'.                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | <code>'JPEG_PDF'</code> | 7.3.0 |
+| **`scannerMode`**          | <code>'FULL' \| 'BASE' \| 'BASE_WITH_FILTER'</code> | The scanner mode. BASE: Basic editing capabilities (crop, rotate, reorder pages, etc.). BASE_WITH_FILTER: Adds image filters (grayscale, auto image enhancement, etc.) to the BASE mode. FULL: Adds ML-enabled image cleaning capabilities (erase stains, fingers, etc.) to the BASE_WITH_FILTER mode. This mode will also allow future major features to be automatically added along with Google Play services updates, while the other two modes will maintain their current feature sets and only receive minor refinements. | <code>"FULL"</code>     | 7.3.0 |
 
 
 #### IsGoogleDocumentScannerModuleAvailableResult
 
 | Prop            | Type                 | Description                                                     | Since |
 | --------------- | -------------------- | --------------------------------------------------------------- | ----- |
-| **`available`** | <code>boolean</code> | Whether or not the Google Document Scanner module is available. | 7.2.1 |
+| **`available`** | <code>boolean</code> | Whether or not the Google Document Scanner module is available. | 7.3.0 |
 
 
 #### PluginListenerHandle
@@ -223,8 +264,8 @@ Options for the document scanner.
 
 | Prop           | Type                                                                                                        | Description                                                    | Since |
 | -------------- | ----------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- | ----- |
-| **`state`**    | <code><a href="#googledocumentscannermoduleinstallstate">GoogleDocumentScannerModuleInstallState</a></code> | The current state of the installation.                         | 7.2.1 |
-| **`progress`** | <code>number</code>                                                                                         | The progress of the installation in percent between 0 and 100. | 7.2.1 |
+| **`state`**    | <code><a href="#googledocumentscannermoduleinstallstate">GoogleDocumentScannerModuleInstallState</a></code> | The current state of the installation.                         | 7.3.0 |
+| **`progress`** | <code>number</code>                                                                                         | The progress of the installation in percent between 0 and 100. | 7.3.0 |
 
 
 ### Enums
@@ -234,14 +275,14 @@ Options for the document scanner.
 
 | Members               | Value          | Since |
 | --------------------- | -------------- | ----- |
-| **`UNKNOWN`**         | <code>0</code> | 7.2.1 |
-| **`PENDING`**         | <code>1</code> | 7.2.1 |
-| **`DOWNLOADING`**     | <code>2</code> | 7.2.1 |
-| **`CANCELED`**        | <code>3</code> | 7.2.1 |
-| **`COMPLETED`**       | <code>4</code> | 7.2.1 |
-| **`FAILED`**          | <code>5</code> | 7.2.1 |
-| **`INSTALLING`**      | <code>6</code> | 7.2.1 |
-| **`DOWNLOAD_PAUSED`** | <code>7</code> | 7.2.1 |
+| **`UNKNOWN`**         | <code>0</code> | 7.3.0 |
+| **`PENDING`**         | <code>1</code> | 7.3.0 |
+| **`DOWNLOADING`**     | <code>2</code> | 7.3.0 |
+| **`CANCELED`**        | <code>3</code> | 7.3.0 |
+| **`COMPLETED`**       | <code>4</code> | 7.3.0 |
+| **`FAILED`**          | <code>5</code> | 7.3.0 |
+| **`INSTALLING`**      | <code>6</code> | 7.3.0 |
+| **`DOWNLOAD_PAUSED`** | <code>7</code> | 7.3.0 |
 
 </docgen-api>
 
@@ -252,6 +293,38 @@ Options for the document scanner.
 - It also requires a minimal device total RAM of 1.7GB. If lower, it returns an `MlKitException` with error code `UNSUPPORTED` when calling the API (this plugin will reject the promise).
 - Consider that generating document files takes time and requires processing power, so only request the output formats (JPEG, or PDF, or both) you actually need via the `resultFormats` option.
 
+## FAQ
+
+### Which platforms are supported by this plugin?
+
+The plugin is only available on Android, since the underlying ML Kit Document Scanner is provided by Google Play services. All methods reject on other platforms.
+
+### Why is the document scanner not available on first use?
+
+The ML Kit Document Scanner models, scanning logic, and UI flow are dynamically downloaded by Google Play services, so users might have to wait for the download before the first use. Use `isGoogleDocumentScannerModuleAvailable()` to check for the module, `installGoogleDocumentScannerModule()` to install it, and listen to the `googleDocumentScannerModuleInstallProgress` event for progress updates.
+
+### Which result formats can I get from a scan?
+
+You can request JPEG images, a PDF file, or both via the `resultFormats` option. The result then contains an array of URIs for the scanned image pages and/or information about the generated PDF, including its URI and page count. Since generating document files takes time and processing power, only request the formats you actually need.
+
+### What is the difference between the scanner modes?
+
+The `BASE` mode provides basic editing capabilities such as crop, rotate, and reorder pages. The `BASE_WITH_FILTER` mode adds image filters such as grayscale and auto image enhancement. The `FULL` mode (the default) additionally provides ML-enabled image cleaning capabilities, for example erasing stains and fingers, and will automatically receive future major features along with Google Play services updates.
+
+### Are there any device requirements?
+
+Yes, the API requires Android API level 21 or above and a minimal device total RAM of 1.7 GB. On devices with less RAM, the API returns an `MlKitException` with error code `UNSUPPORTED` and the plugin rejects the promise.
+
+### Can users import existing photos instead of scanning?
+
+Yes, set the `galleryImportAllowed` option to `true` to allow importing pages from the photo gallery. It is disabled by default.
+
+## Related Plugins
+
+- [ML Kit Barcode Scanning](https://capawesome.io/docs/sdks/capacitor/mlkit/barcode-scanning/): Scan barcodes and QR codes with ML Kit Barcode Scanning.
+- [PDF Viewer](https://capawesome.io/docs/sdks/capacitor/pdf-viewer/): Display PDF documents in a fullscreen native viewer.
+- [File Opener](https://capawesome.io/docs/sdks/capacitor/file-opener/): Open a scanned file with the default application.
+
 ## Terms & Privacy
 
 This plugin uses the [Google ML Kit](https://developers.google.com/ml-kit):
@@ -259,6 +332,10 @@ This plugin uses the [Google ML Kit](https://developers.google.com/ml-kit):
 - [Terms & Privacy](https://developers.google.com/ml-kit/terms)
 - [Android Data Disclosure](https://developers.google.com/ml-kit/android-data-disclosure)
 - [iOS Data Disclosure](https://developers.google.com/ml-kit/ios-data-disclosure)
+
+## Newsletter
+
+Stay up to date with the latest news and updates about the Capawesome, Capacitor, and Ionic ecosystem by subscribing to our [Capawesome Newsletter](https://cloud.capawesome.io/newsletter/).
 
 ## Changelog
 

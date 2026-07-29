@@ -29,7 +29,6 @@ import io.capawesome.capacitorjs.plugins.mlkit.barcodescanning.classes.results.G
 import io.capawesome.capacitorjs.plugins.mlkit.barcodescanning.interfaces.TakePhotoCallback;
 import java.util.List;
 
-
 @CapacitorPlugin(
     name = "BarcodeScanner",
     permissions = { @Permission(strings = { Manifest.permission.CAMERA }, alias = BarcodeScannerPlugin.CAMERA) }
@@ -69,23 +68,23 @@ public class BarcodeScannerPlugin extends Plugin {
 
     @PluginMethod
     public void takePhoto(PluginCall call) {
-            implementation.takePhoto(new TakePhotoCallback(){
+        implementation.takePhoto(
+            new TakePhotoCallback() {
                 @Override
                 public void success(String base64Image) {
                     JSObject result = new JSObject();
                     result.put("img", base64Image);
                     call.resolve(result);
                 }
+
                 @Override
                 public void error(Exception e) {
                     Logger.error(TAG, "takePhoto failed.", e);
                     call.reject(e.getMessage());
                 }
-            });
-        
-
+            }
+        );
     }
-
 
     @PluginMethod
     public void startScan(PluginCall call) {
@@ -192,10 +191,13 @@ public class BarcodeScannerPlugin extends Plugin {
     public void scan(PluginCall call) {
         try {
             List<String> formatsOption = call.getArray("formats", new JSArray()).toList();
+            boolean autoZoom = call.getBoolean("autoZoom", false);
+
             int[] formats = BarcodeScannerHelper.convertStringsToBarcodeScannerFormats(formatsOption.toArray(new String[0]));
 
             ScanSettings scanSettings = new ScanSettings();
             scanSettings.formats = formats;
+            scanSettings.autoZoom = autoZoom;
 
             implementation.isGoogleBarcodeScannerModuleAvailable(
                 new IsGoogleBarodeScannerModuleAvailableResultCallback() {

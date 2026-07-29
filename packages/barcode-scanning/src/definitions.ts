@@ -16,16 +16,14 @@ export interface BarcodeScannerPlugin {
   /**
    * Read barcodes from an image.
    *
-   * Only available on Android and iOS.
-   *
    * @since 0.0.1
    */
-  takePhoto():Promise<Photo>
+  takePhoto(): Promise<Photo>;
   /**
    * take a photo and return it as a string
-   * 
+   *
    * Only available on Android
-   * 
+   *
    * @since 6.3.10
    */
   readBarcodesFromImage(
@@ -238,6 +236,15 @@ export interface StartScanOptions {
    */
   resolution?: Resolution;
   /**
+   * Allow camera usage on iPad while in multitasking mode.
+   *
+   * Only available on iOS (16.0+).
+   *
+   * @since 7.5.0
+   * @default false
+   */
+  enableMultitaskingCameraAccess?: boolean;
+  /**
    * The HTML video element to use for the camera preview.
    *
    * Only available on web.
@@ -252,6 +259,14 @@ export interface StartScanOptions {
  */
 export interface ReadBarcodesFromImageOptions {
   /**
+   * The blob instance of the image file.
+   *
+   * Only available on Web.
+   *
+   * @since 7.4.0
+   */
+  blob?: Blob;
+  /**
    * Improve the speed of the barcode scanner by configuring
    * the barcode formats to scan for.
    *
@@ -261,9 +276,11 @@ export interface ReadBarcodesFromImageOptions {
   /**
    * The local path to the image file.
    *
+   * Only available on Android and iOS.
+   *
    * @since 0.0.1
    */
-  path: string;
+  path?: string;
 }
 
 /**
@@ -297,6 +314,12 @@ export interface ScanOptions {
    * @since 0.0.1
    */
   formats?: BarcodeFormat[];
+  /**
+   * Toggle the auto zoom feature.
+   *
+   * @since 7.4.0
+   */
+  autoZoom?: boolean;
 }
 
 /**
@@ -559,14 +582,14 @@ export interface Barcode {
   /**
    * The barcode value in a machine readable format.
    *
-   * This value is only available when the barcode is encoded
+   * This value is only available if the barcode is encoded
    * in the UTF-8 character set. Otherwise, the `bytes` property
-   * should be used and this property will be an empty string.
+   * should be used.
    *
    * @since 0.0.1
    * @example "CapacitorJS"
    */
-  rawValue: string;
+  rawValue?: string;
   /**
    * A sms message from a 'SMS:'.
    *

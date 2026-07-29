@@ -1,19 +1,54 @@
-# @capacitor-mlkit/translation
+# Capacitor ML Kit Translation Plugin
 
 Unofficial Capacitor plugin for [ML Kit Translation](https://developers.google.com/ml-kit/language/translation).[^1]
 
 <div class="capawesome-z29o10a">
   <a href="https://cloud.capawesome.io/" target="_blank">
-    <img alt="Deliver Live Updates to your Capacitor app with Capawesome Cloud" src="https://cloud.capawesome.io/assets/banners/cloud-deploy-real-time-app-updates.png?t=1" />
+    <img alt="Deliver Live Updates to your Capacitor app with Capawesome Cloud" src="https://cloud.capawesome.io/assets/banners/cloud-build-and-deploy-capacitor-apps.png?t=1" />
   </a>
 </div>
 
+## Use Cases
+
+The Translation plugin is typically used to translate text directly on the device, for example:
+
+- **Chat translation**: Translate incoming messages into the language of the user.
+- **Content translation**: Let users translate user-generated content such as comments, reviews, or posts.
+- **Offline translation**: Download language models in advance so users can translate text without an internet connection.
+- **Travel apps**: Help travelers translate text on the go, even when roaming without a data connection.
+
+## Compatibility
+
+| Plugin Version | Capacitor Version | Status         |
+| -------------- | ----------------- | -------------- |
+| 8.x.x          | >=8.x.x           | Active support |
+| 7.x.x          | 7.x.x             | Deprecated     |
+| 6.x.x          | 6.x.x             | Deprecated     |
+| 5.x.x          | 5.x.x             | Deprecated     |
+
 ## Installation
+
+You can use our **AI-Assisted Setup** to install the plugin.
+Add the [Capawesome Skills](https://github.com/capawesome-team/skills) to your AI tool using the following command:
+
+```bash
+npx skills add capawesome-team/skills --skill capacitor-plugins
+```
+
+Then use the following prompt:
+
+```
+Use the `capacitor-plugins` skill from `capawesome-team/skills` to install the `@capacitor-mlkit/translation` plugin in my project.
+```
+
+If you prefer **Manual Setup**, install the plugin by running the following commands and follow the platform-specific instructions below:
 
 ```bash
 npm install @capacitor-mlkit/translation
 npx cap sync
 ```
+
+**Attention**: This plugin **only supports CocoaPods** for iOS dependency management. Swift Package Manager (SPM) is not supported for the ML Kit SDK, see [this comment](https://github.com/googlesamples/mlkit/issues/180#issuecomment-1298964099).
 
 ### Android
 
@@ -45,25 +80,14 @@ A working example can be found here: [robingenz/capacitor-mlkit-plugin-demo](htt
 
 ## Usage
 
+The following examples show how to translate a text, download a language model, list the downloaded language models, and delete a downloaded language model.
+
+### Translate a text
+
+Use the `translate(...)` method to translate a text from a source language to a target language. If the language model for the given languages is not downloaded yet, it will be downloaded automatically, which may take some time. Only available on Android and iOS:
+
 ```typescript
 import { Translation, Language } from '@capacitor-mlkit/translation';
-
-const deleteDownloadedModel = async () => {
-  await Translation.deleteDownloadedModel({
-    language: Language.English,
-  });
-};
-
-const downloadModel = async () => {
-  await Translation.downloadModel({
-    language: Language.English,
-  });
-};
-
-const getDownloadedModels = async () => {
-  const { languages } = await Translation.getDownloadedModels();
-  return languages;
-};
 
 const translate = async () => {
   const { text } = await Translation.translate({
@@ -72,6 +96,47 @@ const translate = async () => {
     targetLanguage: Language.German,
   });
   return text;
+};
+```
+
+### Download a language model
+
+Download a language model in advance to enable offline translation. Language models are around 30MB in size, so be sure to only download the models you need and only download them using a WiFi connection unless the user has specified otherwise. Only available on Android and iOS:
+
+```typescript
+import { Translation, Language } from '@capacitor-mlkit/translation';
+
+const downloadModel = async () => {
+  await Translation.downloadModel({
+    language: Language.English,
+  });
+};
+```
+
+### List the downloaded language models
+
+Get the languages for which a model has already been downloaded to the device. Only available on Android and iOS:
+
+```typescript
+import { Translation } from '@capacitor-mlkit/translation';
+
+const getDownloadedModels = async () => {
+  const { languages } = await Translation.getDownloadedModels();
+  return languages;
+};
+```
+
+### Delete a downloaded language model
+
+Delete the language model for a given language, for example to free up storage space on the device. Only available on Android and iOS:
+
+```typescript
+import { Translation, Language } from '@capacitor-mlkit/translation';
+
+const deleteDownloadedModel = async () => {
+  await Translation.deleteDownloadedModel({
+    language: Language.English,
+  });
 };
 ```
 
@@ -283,6 +348,39 @@ Only available on Android and iOS.
 
 </docgen-api>
 
+## FAQ
+
+### Which platforms are supported by this plugin?
+
+The plugin is available on Android and iOS. All methods are only available on Android and iOS, so there is no web implementation.
+
+### Which languages are supported?
+
+The plugin supports more than 50 languages, including English, German, Spanish, French, Chinese, and Japanese. See the `Language` enum in the [API](#api) section for the complete list.
+
+### Does the translation work offline?
+
+Yes, the translation is performed on the device using downloaded language models. Use the `downloadModel(...)` method to download a language model in advance, for example while the device is connected to a WiFi network. Otherwise, the model is downloaded automatically on the first call to `translate(...)`, which may take some time.
+
+### How much storage do the language models require?
+
+Language models are around 30MB in size, so be sure to only download the models you need. You can delete a model that is no longer needed using the `deleteDownloadedModel(...)` method.
+
+### What if I don't know the source language of the text?
+
+The `translate(...)` method requires a source language. You can use the ML Kit Language Identification plugin to detect the language of a text before translating it.
+
+### Can I install this plugin using Swift Package Manager?
+
+No, this plugin only supports CocoaPods for iOS dependency management because the ML Kit SDK itself does not support Swift Package Manager. Also make sure to set the deployment target in your `ios/App/Podfile` to at least `15.5` (see [Installation](#installation)).
+
+## Related Plugins
+
+- [Speech Recognition](https://capawesome.io/docs/sdks/capacitor/speech-recognition/): Transcribe speech into text, for example to translate it afterwards.
+- [Speech Synthesis](https://capawesome.io/docs/sdks/capacitor/speech-synthesis/): Synthesize speech from text, for example to read translated text aloud.
+- [App Language](https://capawesome.io/docs/sdks/capacitor/app-language/): Manage the app's own language override, independent of the device language.
+- [ML Kit Entity Extraction](https://capawesome.io/docs/sdks/capacitor/mlkit/entity-extraction/): Extract entities such as addresses and dates from text before or after translating it.
+
 ## Terms & Privacy
 
 This plugin uses the [Google ML Kit](https://developers.google.com/ml-kit):
@@ -290,6 +388,10 @@ This plugin uses the [Google ML Kit](https://developers.google.com/ml-kit):
 - [Terms & Privacy](https://developers.google.com/ml-kit/terms)
 - [Android Data Disclosure](https://developers.google.com/ml-kit/android-data-disclosure)
 - [iOS Data Disclosure](https://developers.google.com/ml-kit/ios-data-disclosure)
+
+## Newsletter
+
+Stay up to date with the latest news and updates about the Capawesome, Capacitor, and Ionic ecosystem by subscribing to our [Capawesome Newsletter](https://cloud.capawesome.io/newsletter/).
 
 ## Changelog
 

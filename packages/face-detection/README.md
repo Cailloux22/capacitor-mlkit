@@ -1,19 +1,53 @@
-# @capacitor-mlkit/face-detection
+# Capacitor ML Kit Face Detection Plugin
 
 Unofficial Capacitor plugin for [ML Kit Face Detection](https://developers.google.com/ml-kit/vision/face-detection).[^1]
 
 <div class="capawesome-z29o10a">
   <a href="https://cloud.capawesome.io/" target="_blank">
-    <img alt="Deliver Live Updates to your Capacitor app with Capawesome Cloud" src="https://cloud.capawesome.io/assets/banners/cloud-deploy-real-time-app-updates.png?t=1" />
+    <img alt="Deliver Live Updates to your Capacitor app with Capawesome Cloud" src="https://cloud.capawesome.io/assets/banners/cloud-build-and-deploy-capacitor-apps.png?t=1" />
   </a>
 </div>
 
+## Use Cases
+
+The Face Detection plugin is typically used whenever an app needs to locate faces in an image, for example:
+
+- **Photo organization**: Detect which photos contain faces and where they are located, for example to crop thumbnails around them.
+- **Selfie effects**: Use the detected face landmarks and contours to position stickers or other virtual elements on faces.
+- **Smile detection**: Use the classification results to determine the probability that a person is smiling or has their eyes open.
+- **Face tracking**: Maintain a consistent ID for each face across consecutive frames using the tracking option.
+
+## Compatibility
+
+| Plugin Version | Capacitor Version | Status         |
+| -------------- | ----------------- | -------------- |
+| 8.x.x          | >=8.x.x           | Active support |
+| 7.x.x          | 7.x.x             | Deprecated     |
+| 6.x.x          | 6.x.x             | Deprecated     |
+
 ## Installation
+
+You can use our **AI-Assisted Setup** to install the plugin.
+Add the [Capawesome Skills](https://github.com/capawesome-team/skills) to your AI tool using the following command:
+
+```bash
+npx skills add capawesome-team/skills --skill capacitor-plugins
+```
+
+Then use the following prompt:
+
+```
+Use the `capacitor-plugins` skill from `capawesome-team/skills` to install the `@capacitor-mlkit/face-detection` plugin in my project.
+```
+
+If you prefer **Manual Setup**, install the plugin by running the following commands and follow the platform-specific instructions below:
 
 ```bash
 npm install @capacitor-mlkit/face-detection
 npx cap sync
 ```
+
+**Attention**: This plugin **only supports CocoaPods** for iOS dependency management. Swift Package Manager (SPM) is not supported for the ML Kit SDK, see [this comment](https://github.com/googlesamples/mlkit/issues/180#issuecomment-1298964099).
 
 ### Android
 
@@ -55,8 +89,20 @@ A working example can be found here: [robingenz/capacitor-mlkit-plugin-demo](htt
 
 ## Usage
 
+The following example shows how to detect faces in an image.
+
+### Detect faces in an image
+
+Detect human faces in an image at a local path. You can configure the accuracy/speed trade-off and enable landmarks, contours, classification (smiling and eyes open probabilities), and face tracking. Only available on Android and iOS:
+
 ```typescript
-import { FaceDetection, PerformanceMode, LandmarkMode, ContourMode, ClassificationMode } from '@capacitor-mlkit/face-detection';
+import {
+  FaceDetection,
+  PerformanceMode,
+  LandmarkMode,
+  ContourMode,
+  ClassificationMode,
+} from '@capacitor-mlkit/face-detection';
 
 const processImage = async () => {
   const { faces } = await FaceDetection.processImage({
@@ -264,6 +310,39 @@ A contour is a list of points on a detected face, such as the mouth.
 
 </docgen-api>
 
+## FAQ
+
+### Which platforms are supported by this plugin?
+
+The `processImage(...)` method is only available on Android and iOS. The Web platform is not supported by the underlying ML Kit Face Detection SDK.
+
+### Does the plugin recognize who is in the picture?
+
+No, the plugin performs face detection, not face recognition. It detects the position of faces in an image along with attributes such as landmarks, contours, head rotation, and smiling probability, but it does not identify individuals. With the `enableTracking` option you can only maintain a consistent ID for the same face across consecutive frames.
+
+### What is the difference between landmarks and contours?
+
+A landmark is a single point on a detected face, such as an eye, nose, or mouth. A contour is a list of points that outlines a facial feature, such as the face oval, eyebrows, eyes, or lips. Landmarks are enabled via the `landmarkMode` option and contours via the `contourMode` option. Note that contours are only returned for up to 5 faces.
+
+### How can I detect whether a person is smiling or has their eyes open?
+
+Set the `classificationMode` option to `All`. The detected faces then contain the `smilingProbability`, `leftEyeOpenProbability`, and `rightEyeOpenProbability` properties, each a value between 0.0 and 1.0.
+
+### What is the difference between this plugin and the Face Mesh Detection plugin?
+
+This plugin detects faces with bounding boxes, landmarks, contours, and classifications on Android and iOS. The [ML Kit Face Mesh Detection](https://capawesome.io/docs/sdks/capacitor/mlkit/face-mesh-detection/) plugin returns a dense mesh of 468 3D points and triangle information for detected faces, but is only available on Android.
+
+### Can I use this plugin with Ionic, React, Vue or Angular?
+
+Yes, the plugin is framework-agnostic. It works in any Capacitor app regardless of the web framework, including Ionic with Angular, React, or Vue, as well as plain JavaScript projects.
+
+## Related Plugins
+
+- [ML Kit Face Mesh Detection](https://capawesome.io/docs/sdks/capacitor/mlkit/face-mesh-detection/): Detect face meshes with 468 3D points in images.
+- [ML Kit Selfie Segmentation](https://capawesome.io/docs/sdks/capacitor/mlkit/selfie-segmentation/): Segment selfies from the background with ML Kit Selfie Segmentation.
+- [ML Kit Subject Segmentation](https://capawesome.io/docs/sdks/capacitor/mlkit/subject-segmentation/): Separate subjects from the background with ML Kit Subject Segmentation.
+- [ML Kit Pose Detection](https://capawesome.io/docs/sdks/capacitor/mlkit/pose-detection/): Detect body poses alongside faces in the same scene.
+
 ## Terms & Privacy
 
 This plugin uses the [Google ML Kit](https://developers.google.com/ml-kit):
@@ -271,6 +350,10 @@ This plugin uses the [Google ML Kit](https://developers.google.com/ml-kit):
 - [Terms & Privacy](https://developers.google.com/ml-kit/terms)
 - [Android Data Disclosure](https://developers.google.com/ml-kit/android-data-disclosure)
 - [iOS Data Disclosure](https://developers.google.com/ml-kit/ios-data-disclosure)
+
+## Newsletter
+
+Stay up to date with the latest news and updates about the Capawesome, Capacitor, and Ionic ecosystem by subscribing to our [Capawesome Newsletter](https://cloud.capawesome.io/newsletter/).
 
 ## Changelog
 

@@ -1,16 +1,21 @@
 import { CapacitorException, ExceptionCode, WebPlugin } from '@capacitor/core';
 
-import type { DetectedBarcode } from './barcode-detector';
-import { BarcodeValueType, LensFacing } from './definitions';
 import type {
+  BarcodeDetectorFormat,
+  DetectedBarcode,
+} from './barcode-detector';
+import type {
+  Barcode,
   BarcodeFormat,
-  BarcodesScannedEvent,
   BarcodeScannerPlugin,
+  BarcodesScannedEvent,
   GetMaxZoomRatioResult,
   GetMinZoomRatioResult,
   GetZoomRatioResult,
   IsGoogleBarcodeScannerModuleAvailableResult,
   IsSupportedResult,
+  IsTorchAvailableResult,
+  IsTorchEnabledResult,
   PermissionStatus,
   Photo,
   ReadBarcodesFromImageOptions,
@@ -18,9 +23,8 @@ import type {
   ScanResult,
   SetZoomRatioOptions,
   StartScanOptions,
-  IsTorchEnabledResult,
-  IsTorchAvailableResult,
 } from './definitions';
+import { BarcodeValueType, LensFacing } from './definitions';
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/consistent-type-imports
@@ -33,6 +37,7 @@ export class BarcodeScannerWeb
 {
   private readonly _isSupported = 'BarcodeDetector' in window;
   private readonly errorVideoElementMissing = 'videoElement must be provided.';
+  private readonly errorBlobMissing = 'blob must be provided.';
   private readonly eventBarcodesScanned = 'barcodesScanned';
 
   private intervalId: number | undefined;
@@ -95,13 +100,29 @@ export class BarcodeScannerWeb
   }
 
   async readBarcodesFromImage(
-    _options: ReadBarcodesFromImageOptions,
+    options: ReadBarcodesFromImageOptions,
   ): Promise<ReadBarcodesFromImageResult> {
-    throw this.createUnavailableException();
+    if (!this._isSupported) {
+      throw this.createUnavailableException();
+    }
+    if (!options.blob) {
+      throw new Error(this.errorBlobMissing);
+    }
+    const formats = options.formats?.map(
+      format => format.toLowerCase() as BarcodeDetectorFormat,
+    );
+    const barcodeDetector = new BarcodeDetector(
+      formats?.length ? { formats } : undefined,
+    );
+    const imageBitmap = await createImageBitmap(options.blob);
+    const detectedBarcodes = await barcodeDetector.detect(imageBitmap);
+    return {
+      barcodes: this.convertDetectedBarcodesToBarcodes(detectedBarcodes),
+    };
   }
 
   async scan(): Promise<ScanResult> {
-    throw this.createUnavailableException();
+    throw this.createUnimplementedException();
   }
 
   async isSupported(): Promise<IsSupportedResult> {
@@ -109,51 +130,51 @@ export class BarcodeScannerWeb
   }
 
   async enableTorch(): Promise<void> {
-    throw this.createUnavailableException();
+    throw this.createUnimplementedException();
   }
 
   async disableTorch(): Promise<void> {
-    throw this.createUnavailableException();
+    throw this.createUnimplementedException();
   }
 
   async toggleTorch(): Promise<void> {
-    throw this.createUnavailableException();
+    throw this.createUnimplementedException();
   }
 
   async isTorchEnabled(): Promise<IsTorchEnabledResult> {
-    throw this.createUnavailableException;
+    throw this.createUnimplementedException();
   }
 
   async isTorchAvailable(): Promise<IsTorchAvailableResult> {
-    throw this.createUnavailableException();
+    return { available: false };
   }
 
   async setZoomRatio(_options: SetZoomRatioOptions): Promise<void> {
-    throw this.createUnavailableException();
+    throw this.createUnimplementedException();
   }
 
   async getZoomRatio(): Promise<GetZoomRatioResult> {
-    throw this.createUnavailableException();
+    throw this.createUnimplementedException();
   }
 
   async getMinZoomRatio(): Promise<GetMinZoomRatioResult> {
-    throw this.createUnavailableException();
+    throw this.createUnimplementedException();
   }
 
   async getMaxZoomRatio(): Promise<GetMaxZoomRatioResult> {
-    throw this.createUnavailableException();
+    throw this.createUnimplementedException();
   }
 
   async openSettings(): Promise<void> {
-    throw this.createUnavailableException();
+    throw this.createUnimplementedException();
   }
 
   async isGoogleBarcodeScannerModuleAvailable(): Promise<IsGoogleBarcodeScannerModuleAvailableResult> {
-    throw this.createUnavailableException();
+    throw this.createUnimplementedException();
   }
 
   async installGoogleBarcodeScannerModule(): Promise<void> {
-    throw this.createUnavailableException();
+    throw this.createUnimplementedException();
   }
 
   async checkPermissions(): Promise<PermissionStatus> {
@@ -192,21 +213,34 @@ export class BarcodeScannerWeb
     );
   }
 
+  private createUnimplementedException(): CapacitorException {
+    return new CapacitorException(
+      'This method is not implemented on web.',
+      ExceptionCode.Unimplemented,
+    );
+  }
+
   private handleScannedBarcodes(barcodes: DetectedBarcode[]): void {
     const result: BarcodesScannedEvent = {
-      barcodes: barcodes.map(barcode => ({
-        cornerPoints: [
-          [barcode.cornerPoints[0].x, barcode.cornerPoints[0].y],
-          [barcode.cornerPoints[1].x, barcode.cornerPoints[1].y],
-          [barcode.cornerPoints[2].x, barcode.cornerPoints[2].y],
-          [barcode.cornerPoints[3].x, barcode.cornerPoints[3].y],
-        ],
-        displayValue: barcode.rawValue,
-        rawValue: barcode.rawValue,
-        format: barcode.format.toUpperCase() as BarcodeFormat,
-        valueType: BarcodeValueType.Unknown,
-      })),
+      barcodes: this.convertDetectedBarcodesToBarcodes(barcodes),
     };
     this.notifyListeners(this.eventBarcodesScanned, result);
+  }
+
+  private convertDetectedBarcodesToBarcodes(
+    barcodes: DetectedBarcode[],
+  ): Barcode[] {
+    return barcodes.map(barcode => ({
+      cornerPoints: [
+        [barcode.cornerPoints[0].x, barcode.cornerPoints[0].y],
+        [barcode.cornerPoints[1].x, barcode.cornerPoints[1].y],
+        [barcode.cornerPoints[2].x, barcode.cornerPoints[2].y],
+        [barcode.cornerPoints[3].x, barcode.cornerPoints[3].y],
+      ],
+      displayValue: barcode.rawValue,
+      rawValue: barcode.rawValue,
+      format: barcode.format.toUpperCase() as BarcodeFormat,
+      valueType: BarcodeValueType.Unknown,
+    }));
   }
 }
