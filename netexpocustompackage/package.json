@@ -1,6 +1,6 @@
 {
   "name": "netexpo-mlkit-barcode-scanner",
-  "version": "1.0.9",
+  "version": "1.0.29",
   "description": "Capacitor plugin for ML Kit Barcode Scanning by mathieu.",
   "main": "dist/plugin.cjs.js",
   "module": "dist/esm/index.js",
@@ -46,11 +46,11 @@
     "build": "cd .. && npm run build && cp -r ./packages/barcode-scanning/dist/ ./netexpocustompackage/"
   },
   "devDependencies": {
-    "@capacitor/android": "6.0.0",
-    "@capacitor/cli": "6.0.0",
-    "@capacitor/core": "6.0.0",
+    "@capacitor/android": "^8.0.0",
+    "@capacitor/cli": "^8.0.0",
+    "@capacitor/core": "^8.0.0",
     "@capacitor/docgen": "0.2.1",
-    "@capacitor/ios": "6.0.0",
+    "@capacitor/ios": "^8.0.0",
     "@ionic/eslint-config": "0.3.0",
     "@ionic/swiftlint-config": "1.1.2",
     "eslint": "7.32.0",
@@ -62,7 +62,7 @@
     "typescript": "4.1.5"
   },
   "peerDependencies": {
-    "@capacitor/core": "^6.0.0"
+    "@capacitor/core": "^8.0.0"
   },
   "swiftlint": "@ionic/swiftlint-config",
   "eslintConfig": {

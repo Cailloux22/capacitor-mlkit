@@ -71,7 +71,7 @@ public class BarcodeScanner implements ImageAnalysis.Analyzer {
 
     private ImageCapture imageCapture;
 
-    private final Point displaySize;
+    private final Point displaySize = null;
 
     @Nullable
     private com.google.mlkit.vision.barcode.BarcodeScanner barcodeScannerInstance;
