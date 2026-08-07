@@ -1,6 +1,6 @@
 {
   "name": "netexpo-mlkit-barcode-scanner",
-  "version": "1.0.29",
+  "version": "1.0.33",
   "description": "Capacitor plugin for ML Kit Barcode Scanning by mathieu.",
   "main": "dist/plugin.cjs.js",
   "module": "dist/esm/index.js",
@@ -40,10 +40,10 @@
   ],
   "scripts": {
     "prepublishOnly": "npm run clean && npm run android && npm run ios && npm run build && npm version patch",
-    "clean": "rimraf ./dist && rimraf ./android/src/main/ ",
-    "android": "cd ../packages/barcode-scanning/ && cp -r ./android/src/main/ ../../netexpocustompackage/android/src/ ",
-    "ios": "cd ../packages/barcode-scanning/ && cp -r ./ios/Plugin/ ../../netexpocustompackage/ios/ ",
-    "build": "cd .. && npm run build && cp -r ./packages/barcode-scanning/dist/ ./netexpocustompackage/"
+    "clean": "rimraf ./dist ./android ./ios",
+    "android": "cpy \"../packages/barcode-scanning/android/**/*\" ./android --parents",
+    "ios": "cpy \"../packages/barcode-scanning/ios/**/*\" ./ios --parents",
+    "build": "cd .. && npm run build && cpy \"packages/barcode-scanning/dist/**/*\" ./netexpocustompackage/dist --parents"
   },
   "devDependencies": {
     "@capacitor/android": "^8.0.0",
@@ -53,10 +53,11 @@
     "@capacitor/ios": "^8.0.0",
     "@ionic/eslint-config": "0.3.0",
     "@ionic/swiftlint-config": "1.1.2",
+    "cpy-cli": "^7.0.0",
     "eslint": "7.32.0",
     "prettier": "2.3.2",
     "prettier-plugin-java": "1.0.2",
-    "rimraf": "3.0.2",
+    "rimraf": "^3.0.2",
     "rollup": "2.77.2",
     "swiftlint": "1.0.1",
     "typescript": "4.1.5"
