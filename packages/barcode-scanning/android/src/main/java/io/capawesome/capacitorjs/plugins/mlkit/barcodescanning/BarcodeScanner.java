@@ -161,7 +161,8 @@ public class BarcodeScanner implements ImageAnalysis.Analyzer {
                         (LifecycleOwner) plugin.getContext(),
                         cameraSelector,
                         preview,
-                        imageAnalysis
+                        imageAnalysis,
+                        imageCapture
                     );
 
                     callback.success();
